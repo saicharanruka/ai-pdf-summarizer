@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import type { Metadata } from "next";
 import { Source_Sans_3 } from "next/font/google";
+import Header from "~/components/common/Header";
 
 export const metadata: Metadata = {
 	title: "PDF Summarizer",
@@ -19,8 +20,13 @@ export default function RootLayout({
 	children,
 }: Readonly<{ children: React.ReactNode }>) {
 	return (
-		<html lang="en" className={`${fontSans.variable} font-sans`}>
-			<body>{children}</body>
+		<html lang="en">
+			<body className={`${fontSans.variable} font-sans`}>
+				<div className="relative flex min-h-screen flex-col">
+					<Header />
+					<main className="flex-1">{children}</main>
+				</div>
+			</body>
 		</html>
 	);
 }
