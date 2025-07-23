@@ -1,9 +1,9 @@
-import { Button } from "~/components/ui/button";
+import HeroSection from "~/components/home/HeroSection";
 
 export default function HomePage() {
 	return (
-		<div>
-			<Button variant="secondary">Hello</Button>
+		<div className="relative w-full">
+			<HeroSection />
 		</div>
 	);
 }
