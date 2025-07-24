@@ -1,6 +1,7 @@
 'use server';
 
 import { fetchAndExtractPdfText } from '~/utils/langchain';
+import { generateSummary } from '~/utils/openai';
 
 const errorData = {
   success: false,
@@ -28,7 +29,21 @@ export async function generatePdfSummary(
 
   try {
     const pdfText = await fetchAndExtractPdfText(pdfUrl);
-    console.log({ pdfText });
+    let summary: any;
+
+    try {
+      summary = await generateSummary(pdfText);
+      console.log({ summary });
+    } catch (error) {
+      console.log(error);
+    }
+    if (!summary) {
+      return {
+        success: false,
+        message: 'Failed to generate summary',
+        data: null,
+      };
+    }
   } catch (err) {
     console.log(err);
     return errorData;
