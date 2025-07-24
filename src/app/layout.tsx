@@ -3,6 +3,7 @@ import "~/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Source_Sans_3 } from "next/font/google";
+import { Toaster } from "sonner";
 import Header from "~/components/common/Header";
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function RootLayout({
 					<div className="relative flex min-h-screen flex-col">
 						<Header />
 						<main className="flex-1">{children}</main>
+						<Toaster richColors position="top-right" />
 					</div>
 				</body>
 			</html>
