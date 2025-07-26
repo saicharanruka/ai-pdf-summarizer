@@ -1,6 +1,7 @@
 'use server';
 
 import { auth } from '@clerk/nextjs/server';
+import { revalidatePath } from 'next/cache';
 import { getDbConnection } from '~/utils/db';
 import { fetchAndExtractPdfText } from '~/utils/langchain';
 import { generateSummary } from '~/utils/openai';
@@ -43,9 +44,8 @@ export async function generatePdfSummary(
 
     try {
       summary = await generateSummary(pdfText);
-      console.log({ summary });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
     if (!summary) {
       return {
@@ -62,7 +62,7 @@ export async function generatePdfSummary(
       data: { title: fileName, summary },
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return errorData;
   }
 }
@@ -76,7 +76,7 @@ export async function savePdfSummary({
 }: PdfSummaryType) {
   try {
     const sql = await getDbConnection();
-    const query = sql`
+    const [savedSummary] = await sql`
     INSERT INTO pdf_summaries (
       user_id,
       original_file_url,
@@ -84,9 +84,11 @@ export async function savePdfSummary({
       title,
       file_name
     )
-    VALUES (${userId}, ${fileUrl}, ${summary}, ${title}, ${fileName});
+    VALUES (${userId}, ${fileUrl}, ${summary}, ${title}, ${fileName})
+    RETURNING id;
   `;
-    await query;
+
+    return savedSummary;
   } catch (error) {
     console.error('error saving PDF summary', error);
     throw error;
@@ -120,16 +122,19 @@ export async function storePdfSummaryAction({
         success: false,
         message: 'Error saving PDF summary',
       };
-
-    return {
-      success: true,
-      message: 'PDF summary saved successfully',
-      data: savedSummary,
-    };
   } catch (error) {
     return {
       success: false,
       message: 'Error storing PDF summary',
     };
   }
+
+  // Revalidate our cache
+  revalidatePath(`/summaries/${savedSummary.id}`);
+
+  return {
+    success: true,
+    message: 'PDF summary saved successfully',
+    data: { id: savedSummary.id },
+  };
 }

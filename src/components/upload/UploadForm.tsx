@@ -3,6 +3,7 @@
 //  TODO : use server side validation for file upload
 
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -30,6 +31,7 @@ const schema = z.object({
 const UploadForm = () => {
 	const formRef = useRef<HTMLFormElement>(null);
 	const [isLoading, setisLoading] = useState(false);
+	const router = useRouter();
 
 	const { startUpload, routeConfig } = useUploadThing("pdfUploader", {
 		onClientUploadComplete: () => {
@@ -95,20 +97,22 @@ const UploadForm = () => {
 					summary: data.summary,
 					title: data.title,
 					fileName: file.name,
-					fileUrl: response[0]?.serverData.file.url,
+					fileUrl: response[0]?.serverData.file.ufsUrl,
 				});
 
 				toast.success("✅ Summary Generated!", {
 					description: "Your PDF has been saved and summarized successfully",
 				});
 				formRef.current?.reset();
+				console.log("Store Result", storeResult);
+				router.push(`/summaries/${storeResult.data.id}`);
 			}
 		} catch (error) {
 			console.error(error);
 			formRef.current?.reset();
+		} finally {
+			setisLoading(false);
 		}
-
-		setisLoading(false);
 	};
 
 	return (
