@@ -94,7 +94,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 const SummaryCard = ({ summary }: { summary: any }) => {
 	return (
 		<div>
-			<Card className="h-full relative">
+			<Card className="h-full relative hover:scale-105 transition">
 				<div className="flex w-full px-3">
 					<SummaryCardHeader
 						title={summary.title}
